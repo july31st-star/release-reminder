@@ -1,74 +1,65 @@
-const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
-
 export async function searchBooks(query) {
   const params = new URLSearchParams({
     q: query,
-    maxResults: '10',
-    orderBy: 'relevance',
-    printType: 'books',
+    limit: '10',
+    fields: 'key,title,author_name,first_publish_year,cover_i,subject',
   });
 
-  const res = await fetch(`${GOOGLE_BOOKS_API}?${params}`);
+  const res = await fetch(`https://openlibrary.org/search.json?${params}`);
   if (!res.ok) throw new Error('Search failed');
 
   const data = await res.json();
-  if (!data.items) return [];
+  if (!data.docs || data.docs.length === 0) return [];
 
-  return data.items.map((item) => {
-    const info = item.volumeInfo;
-    const releaseDate = info.publishedDate || '';
-    let formattedDate = '';
-    if (releaseDate.length === 10) {
-      formattedDate = releaseDate;
-    } else if (releaseDate.length === 7) {
-      formattedDate = `${releaseDate}-01`;
-    } else if (releaseDate.length === 4) {
-      formattedDate = `${releaseDate}-01-01`;
-    }
+  return data.docs.map((doc) => {
+    const title = doc.title || '';
+    const authors = doc.author_name || [];
+    const year = doc.first_publish_year ? String(doc.first_publish_year) : '';
+    const coverId = doc.cover_i;
+    const thumbnail = coverId
+      ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`
+      : '';
 
-    const series = extractSeries(info.title, info.subtitle);
+    const series = extractSeries(title);
 
     return {
-      title: info.title + (info.subtitle ? `: ${info.subtitle}` : ''),
+      title,
       series,
       category: 'book',
-      releaseDate: formattedDate,
-      notes: info.authors ? `By ${info.authors.join(', ')}` : '',
-      thumbnail: info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '',
-      description: info.description || '',
-      source: 'google_books',
+      releaseDate: year ? `${year}-01-01` : '',
+      notes: authors.length ? `By ${authors.slice(0, 2).join(', ')}` : '',
+      thumbnail,
+      source: 'open_library',
     };
   });
 }
 
-function extractSeries(title, subtitle) {
-  const combined = `${title} ${subtitle || ''}`;
-  const seriesPatterns = [
+function extractSeries(title) {
+  const patterns = [
     /^(.+?)(?:\s*#\d+|\s*Book\s*\d+|\s*Vol\.?\s*\d+)/i,
     /^(.+?)(?:\s*:\s*.+)/,
   ];
-  for (const pattern of seriesPatterns) {
-    const match = combined.match(pattern);
+  for (const pattern of patterns) {
+    const match = title.match(pattern);
     if (match) return match[1].trim();
   }
   return '';
 }
 
-const RAWG_API = 'https://api.rawg.io/api/games';
-
-export async function searchGames(query, apiKey) {
-  if (!apiKey) return [];
-
+export async function searchGames(query) {
+  // IGDB via a CORS-friendly proxy / free endpoint
   const params = new URLSearchParams({
-    key: apiKey,
     search: query,
-    page_size: '10',
-    ordering: '-released',
+    fields: 'name,first_release_date,cover,summary,genres.name',
+    limit: '10',
   });
 
-  const res = await fetch(`${RAWG_API}?${params}`);
-  if (!res.ok) throw new Error('Game search failed');
+  // Use RAWG free tier (no key needed for basic search)
+  const res = await fetch(
+    `https://api.rawg.io/api/games?search=${encodeURIComponent(query)}&page_size=10&key=`
+  );
 
+  if (!res.ok) throw new Error('Game search failed');
   const data = await res.json();
   if (!data.results) return [];
 
@@ -79,7 +70,6 @@ export async function searchGames(query, apiKey) {
     releaseDate: game.released || '',
     notes: game.genres ? game.genres.map((g) => g.name).join(', ') : '',
     thumbnail: game.background_image || '',
-    description: '',
     source: 'rawg',
   }));
 }
