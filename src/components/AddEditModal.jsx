@@ -2,41 +2,20 @@ import { useState, useEffect } from 'react';
 import { search } from '../utils/searchApi';
 import { formatDate } from '../utils/dateUtils';
 
-const CATEGORIES = [
-  { value: 'game', label: 'Game', icon: '🎮' },
-  { value: 'book', label: 'Book', icon: '📚' },
-  { value: 'movie', label: 'Movie', icon: '🎬' },
-  { value: 'show', label: 'TV Show', icon: '📺' },
-  { value: 'music', label: 'Music', icon: '🎵' },
-  { value: 'other', label: 'Other', icon: '📦' },
-];
-
-export default function AddEditModal({ isOpen, onClose, onSave, editItem }) {
+export default function AddEditModal({ isOpen, onClose, onSave }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('book');
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
 
-  const [editForm, setEditForm] = useState({
-    title: '', series: '', category: 'game', releaseDate: '', notes: '',
-  });
-
   useEffect(() => {
-    if (editItem) {
-      setEditForm({
-        title: editItem.title || '',
-        series: editItem.series || '',
-        category: editItem.category || 'game',
-        releaseDate: editItem.releaseDate || '',
-        notes: editItem.notes || '',
-      });
-    } else {
+    if (isOpen) {
       setSearchQuery('');
       setResults([]);
       setSearchError('');
     }
-  }, [editItem, isOpen]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -67,88 +46,6 @@ export default function AddEditModal({ isOpen, onClose, onSave, editItem }) {
     });
     onClose();
   };
-
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    if (!editForm.title.trim()) return;
-    onSave({
-      ...editForm,
-      title: editForm.title.trim(),
-      series: editForm.series.trim(),
-      notes: editForm.notes.trim(),
-    });
-    onClose();
-  };
-
-  const updateEdit = (field, value) => setEditForm((f) => ({ ...f, [field]: value }));
-
-  if (editItem) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-        <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
-          <h2 className="mb-5 text-lg font-semibold text-gray-900">Edit Release</h2>
-          <form onSubmit={handleEditSubmit} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Title</label>
-              <input
-                type="text"
-                value={editForm.title}
-                onChange={(e) => updateEdit('title', e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:outline-none"
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
-              <div className="grid grid-cols-3 gap-2">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.value}
-                    type="button"
-                    onClick={() => updateEdit('category', cat.value)}
-                    className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm transition-colors ${
-                      editForm.category === cat.value
-                        ? 'border-indigo-300 bg-indigo-50 text-indigo-700'
-                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <span>{cat.icon}</span>
-                    <span>{cat.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Notes</label>
-              <textarea
-                value={editForm.notes}
-                onChange={(e) => updateEdit('notes', e.target.value)}
-                placeholder="Any extra details..."
-                rows={2}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:outline-none resize-none"
-              />
-            </div>
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

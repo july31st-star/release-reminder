@@ -43,7 +43,7 @@ function CoverImage({ item, style }) {
   );
 }
 
-export default function ReleaseCard({ item, onEdit, onDelete }) {
+export default function ReleaseCard({ item, onDelete }) {
   const days = getDaysUntil(item.releaseDate);
   const style = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.other;
 
@@ -52,16 +52,7 @@ export default function ReleaseCard({ item, onEdit, onDelete }) {
       <CoverImage item={item} style={style} />
 
       <div className="min-w-0 flex-1">
-        <div className="absolute top-3 right-3 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <button
-            onClick={() => onEdit(item)}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-            title="Edit"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </button>
+        <div className="absolute top-3 right-3 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             onClick={() => onDelete(item.id)}
             className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"

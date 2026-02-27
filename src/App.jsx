@@ -9,32 +9,17 @@ import EmptyState from './components/EmptyState';
 function App() {
   const [items, setItems] = useLocalStorage('release-reminder-items-v2', []);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editItem, setEditItem] = useState(null);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('date-asc');
   const [view, setView] = useState('upcoming');
 
   const handleSave = (formData) => {
-    if (editItem) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === editItem.id ? { ...item, ...formData } : item
-        )
-      );
-    } else {
-      const newItem = {
-        ...formData,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-      };
-      setItems((prev) => [newItem, ...prev]);
-    }
-    setEditItem(null);
-  };
-
-  const handleEdit = (item) => {
-    setEditItem(item);
-    setModalOpen(true);
+    const newItem = {
+      ...formData,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
+    setItems((prev) => [newItem, ...prev]);
   };
 
   const handleDelete = (id) => {
@@ -107,10 +92,7 @@ function App() {
             </p>
           </div>
           <button
-            onClick={() => {
-              setEditItem(null);
-              setModalOpen(true);
-            }}
+            onClick={() => setModalOpen(true)}
             className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -138,7 +120,6 @@ function App() {
                 <ReleaseCard
                   key={item.id}
                   item={item}
-                  onEdit={handleEdit}
                   onDelete={handleDelete}
                 />
               ))}
@@ -149,12 +130,8 @@ function App() {
 
       <AddEditModal
         isOpen={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setEditItem(null);
-        }}
+        onClose={() => setModalOpen(false)}
         onSave={handleSave}
-        editItem={editItem}
       />
     </div>
   );
