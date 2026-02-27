@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Release Reminder</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      (function() {
+        var KEY = 'release-reminder-items-v2';
+        var SEED = [
+          {
+            id: 'seed-cat-kid-6',
+            title: 'Cat Kid Comic Club: Book 6',
+            series: 'Cat Kid Comic Club',
+            category: 'book',
+            releaseDate: '2026-04-07',
+            notes: 'By Dav Pilkey \u00b7 6th book in the series \u00b7 Published by Scholastic',
+            thumbnail: 'https://covers.openlibrary.org/b/id/14424590-M.jpg',
+            createdAt: '2026-02-26T00:00:00.000Z'
+          },
+          {
+            id: 'seed-investigators-weather',
+            title: 'InvestiGators: Weather or Not',
+            series: 'InvestiGators',
+            category: 'book',
+            releaseDate: '2026-06-04',
+            notes: 'By John Patrick Green \u00b7 Published by First Second / Macmillan',
+            thumbnail: 'https://covers.openlibrary.org/b/id/10146814-M.jpg',
+            createdAt: '2026-02-26T00:00:01.000Z'
+          },
+          {
+            id: 'seed-investigators-suit-4',
+            title: 'InvestiGators: Agents of S.U.I.T.: Sew Much Trouble',
+            series: 'InvestiGators: Agents of S.U.I.T.',
+            category: 'book',
+            releaseDate: '2026-02-17',
+            notes: 'By John Patrick Green & Christopher Hastings \u00b7 Book 4 in the spin-off series',
+            thumbnail: 'https://covers.openlibrary.org/b/id/14576689-M.jpg',
+            createdAt: '2026-02-26T00:00:02.000Z'
+          },
+          {
+            id: 'seed-super-rabbit-boy-18',
+            title: 'Battle of the Super Rabbit Boys!',
+            series: 'Press Start! / Super Rabbit Boy',
+            category: 'book',
+            releaseDate: '2026-08-04',
+            notes: 'By Thomas Flintham \u00b7 Press Start! #18 \u00b7 Published by Scholastic',
+            thumbnail: 'https://covers.openlibrary.org/b/id/12993793-M.jpg',
+            createdAt: '2026-02-26T00:00:03.000Z'
+          },
+          {
+            id: 'seed-mega-man-vol-3',
+            title: 'Mr. Mega Man Volume 3',
+            series: 'Mr. Mega Man',
+            category: 'book',
+            releaseDate: '',
+            notes: 'By Hitoshi Ariga \u00b7 Final volume \u00b7 English release by UDON Entertainment \u00b7 Expected 2026',
+            thumbnail: 'https://covers.openlibrary.org/b/id/7801680-M.jpg',
+            createdAt: '2026-02-26T00:00:04.000Z'
+          },
+          {
+            id: 'seed-pokemon-pokopia',
+            title: 'Pok\u00e9mon Pokopia',
+            series: 'Pok\u00e9mon',
+            category: 'game',
+            releaseDate: '2026-03-05',
+            notes: 'Nintendo Switch 2 \u00b7 Life-sim by Koei Tecmo \u00b7 Play as a Ditto building a Pok\u00e9mon paradise',
+            thumbnail: '',
+            createdAt: '2026-02-26T00:00:05.000Z'
+          },
+          {
+            id: 'seed-pokemon-frlg',
+            title: 'Pok\u00e9mon FireRed & LeafGreen',
+            series: 'Pok\u00e9mon',
+            category: 'game',
+            releaseDate: '2026-02-27',
+            notes: 'Nintendo Switch / Switch 2 \u00b7 Digital only \u00b7 $19.99 each \u00b7 30th anniversary re-release',
+            thumbnail: 'https://covers.openlibrary.org/b/id/954628-M.jpg',
+            createdAt: '2026-02-26T00:00:06.000Z'
+          },
+          {
+            id: 'seed-blackpink-deadline',
+            title: 'BLACKPINK \u2013 DEADLINE',
+            series: 'BLACKPINK',
+            category: 'music',
+            releaseDate: '2026-02-27',
+            notes: '3rd mini-album \u00b7 First release in 3+ years \u00b7 Includes single "Jump"',
+            thumbnail: '',
+            createdAt: '2026-02-26T00:00:07.000Z'
+          },
+          {
+            id: 'seed-bts-arirang',
+            title: 'BTS \u2013 ARIRANG',
+            series: 'BTS',
+            category: 'music',
+            releaseDate: '2026-03-20',
+            notes: 'Full studio album \u00b7 14 tracks \u00b7 First album since military service \u00b7 World tour starts April 9',
+            thumbnail: '',
+            createdAt: '2026-02-26T00:00:08.000Z'
+          },
+          {
+            id: 'seed-dog-man-15',
+            title: 'Dog Man: A Sprinkle in Time',
+            series: 'Dog Man',
+            category: 'book',
+            releaseDate: '2026-11-03',
+            notes: 'By Dav Pilkey \u00b7 Dog Man #15 \u00b7 Published by Scholastic',
+            thumbnail: 'https://covers.openlibrary.org/b/id/7894142-M.jpg',
+            createdAt: '2026-02-26T00:00:09.000Z'
+          }
+        ];
+        try {
+          var raw = localStorage.getItem(KEY);
+          var items = raw ? JSON.parse(raw) : [];
+          var idMap = {};
+          for (var i = 0; i < items.length; i++) idMap[items[i].id] = i;
+          var changed = false;
+          for (var j = 0; j < SEED.length; j++) {
+            var s = SEED[j];
+            if (idMap[s.id] !== undefined) {
+              var existing = items[idMap[s.id]];
+              if (s.thumbnail && existing.thumbnail !== s.thumbnail) {
+                existing.thumbnail = s.thumbnail;
+                changed = true;
+              }
+            } else {
+              items.push(s);
+              changed = true;
+            }
+          }
+          if (changed || !raw) localStorage.setItem(KEY, JSON.stringify(items));
+        } catch(e) {}
+      })();
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
