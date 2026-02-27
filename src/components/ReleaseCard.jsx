@@ -22,7 +22,7 @@ function getUrgencyColor(days) {
 
 function CoverImage({ item, style }) {
   const fetchedSrc = useCoverImage(item);
-  const src = item.thumbnail || fetchedSrc;
+  const src = fetchedSrc;
   const [failed, setFailed] = useState(false);
 
   if (src && !failed) {
